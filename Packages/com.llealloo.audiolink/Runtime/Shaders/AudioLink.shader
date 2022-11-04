@@ -901,7 +901,7 @@ Shader "AudioLink/Internal/AudioLink"
                 AUDIO_LINK_ALPHA_START(ALPASS_AUTOCORRELATOR)
 
                 float wavePosition = (float)coordinateLocal.x;
-                float2 fvTotal = 0;
+                float4 fvTotal = 0;
                 float fvr = 15.;
 
                 // This computes both the regular autocorrelator in the R channel
@@ -909,17 +909,19 @@ Shader "AudioLink/Internal/AudioLink"
                 uint i;
                 for(i = AUTOCORRELATOR_EBASEBIN; i < AUTOCORRELATOR_EMAXBIN; i++)
                 {
-                    float bin = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).z;
+                    float2 bin = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).zw;
                     float frequency = pow(2, i / 24.) * AUDIOLINK_BOTTOM_FREQUENCY / AUDIOLINK_SPS * UNITY_TWO_PI;
-                    float2 csv = float2(cos(frequency * wavePosition * fvr),  cos(frequency * wavePosition * fvr + i * 0.32));
-                    csv.y *= step(i % 4, 1) * 4.;
-                    fvTotal += csv * (bin * bin);
+                    float phaseOffset = bin.y * UNITY_TWO_PI;
+                    float4 csv = float4(cos(frequency * wavePosition * fvr),  cos(frequency * wavePosition * fvr + i * 0.32), cos(frequency * wavePosition * fvr + phaseOffset),  cos(frequency * wavePosition * fvr + i * 0.32 + phaseOffset));
+                    csv.yw *= step(i % 4, 1) * 4.;
+                    fvTotal += csv * (bin.x * bin.x);
                 }
 
                 // Red:   Regular autocorrelator
                 // Green: Uncorrelated autocorrelator
-                // Blue:  Reserved
-                return float4(fvTotal, 0, 1);
+                // Blue:  Phase respecting Regular autocorrelator
+                // Alpha: Phase respecting Uncorrelated autocorrelator
+                return fvTotal;
             }
             ENDCG
         }
