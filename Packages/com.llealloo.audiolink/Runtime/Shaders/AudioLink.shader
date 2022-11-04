@@ -200,11 +200,13 @@ Shader "AudioLink/Internal/AudioLink"
                 // Filtered EQ'd output, used by AudioLink 4 Band
                 float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
                 float magEQ = magFilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
+                phase = AudioLinkVec2toDegrees(amplitude) / 360;
 
                 // Red:   Spectrum power, served straight up
                 // Green: Filtered power EQ'd, used by AudioLink 4 Band
                 // Blue:  Filtered spectrum
-                return float4(mag, magEQ, magFilt, 1);
+                // Alpha: Phase
+                return float4(mag, magEQ, magFilt, phase);
             }
             ENDCG
         }
