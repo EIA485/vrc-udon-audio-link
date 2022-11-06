@@ -310,9 +310,9 @@ uint AudioLinkGetCustomString2Char(uint charIndex)
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM2, charIndex);
 }
 
-float AudioLinkVec2toDegrees(float2 vec)
+float AudioLinkVec2toRadians(float2 vec)
 {
-    return vec.y / abs(vec.y) * acos(vec.x / sqrt(pow(vec.x, 2) + pow(vec.y, 2))) + 180;
+    return vec.y / abs(vec.y) * acos(vec.x / sqrt(pow(vec.x, 2) + pow(vec.y, 2)));
 }
 
 #endif

@@ -200,7 +200,7 @@ Shader "AudioLink/Internal/AudioLink"
                 // Filtered EQ'd output, used by AudioLink 4 Band
                 float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
                 float magEQ = magFilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
-                phase = AudioLinkVec2toDegrees(amplitude) / 360;
+                phase = AudioLinkVec2toRadians(amplitude) / UNITY_TWO_PI +.5;
 
                 // Red:   Spectrum power, served straight up
                 // Green: Filtered power EQ'd, used by AudioLink 4 Band
@@ -911,7 +911,7 @@ Shader "AudioLink/Internal/AudioLink"
                 {
                     float2 bin = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).zw;
                     float frequency = pow(2, i / 24.) * AUDIOLINK_BOTTOM_FREQUENCY / AUDIOLINK_SPS * UNITY_TWO_PI;
-                    float phaseOffset = (bin.y -.5) * UNITY_TWO_PI;
+                    float phaseOffset = bin.y - .5;
                     float4 csv = float4(cos(frequency * wavePosition * fvr),  cos(frequency * wavePosition * fvr + i * 0.32), cos(frequency * wavePosition * fvr + phaseOffset),  cos(frequency * wavePosition * fvr + i * 0.32 + phaseOffset));
                     csv.yw *= step(i % 4, 1) * 4.;
                     fvTotal += csv * (bin.x * bin.x);
